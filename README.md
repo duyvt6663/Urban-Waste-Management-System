@@ -3,7 +3,5 @@ Urban waste collection aid
 Just die pls
 
 ## Links:
-### GoogleDoc Draft:
-[Google Docs link](https://docs.google.com/document/d/1W9wXfV9MumBSVd1VUbST8TvINYuyIC4la9X2MDONOzc/edit?usp=sharing)
-### Latex Finalized Version:
-[Latex link](https://www.overleaf.com/7518117826frghvshrgwcb)
+[Google Docs Draft](https://docs.google.com/document/d/1W9wXfV9MumBSVd1VUbST8TvINYuyIC4la9X2MDONOzc/edit?usp=sharing)
+[Final Latex](https://www.overleaf.com/7518117826frghvshrgwcb)
