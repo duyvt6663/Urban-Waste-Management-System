@@ -2,17 +2,15 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable prettier/prettier */
 import { useLocation, Navigate, Outlet } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import { useSelector } from 'react-redux'
 
 const RequireAuth = ({ allowedRoles }) => {
-    const { auth } = useAuth();
+    const user = useSelector((state) => state.user)
     const location = useLocation();
 
     return (
-        auth?.roles?.find(role => allowedRoles?.includes(role))
-            ? <Outlet />
-            : auth?.user
-                ? <Navigate to="/unauthorized" state={{ from: location }} replace />
+        user?.user
+                ? <Outlet />
                 : <Navigate to="/login" state={{ from: location }} replace />
     );
 }
