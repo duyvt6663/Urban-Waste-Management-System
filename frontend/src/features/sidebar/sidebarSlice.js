@@ -4,7 +4,7 @@ const initialState = {
   sidebarShow: true,
 }
 
-const userSlice = createSlice({
+const sidebarSlice = createSlice({
   name: 'sidebar',
   initialState,
   reducers: {
@@ -14,5 +14,5 @@ const userSlice = createSlice({
   },
 })
 
-export const { login, logout } = userSlice.actions
-export default userSlice.reducer
+export const { closeopen } = sidebarSlice.actions
+export default sidebarSlice.reducer
