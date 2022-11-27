@@ -1,5 +1,5 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   CButton,
   CCard,
@@ -15,8 +15,41 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
+import axios from 'src/api/axios'
+import { useSelector, useDispatch } from 'react-redux'
+import { login } from 'src/features/user/userSlice'
+
+const LOGIN_URL = '/account/auth/'
 
 const Login = () => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const [userName, setUserName] = useState('')
+  const [pwd, setPwd] = useState('')
+  const [errMsg, setErrMsg] = useState('')
+  // eslint-disable-next-line no-restricted-globals
+
+  const hanldeSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const response = await axios.post(
+        LOGIN_URL,
+        JSON.stringify({ username: userName, password: pwd }),
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        },
+      )
+      console.log(JSON.stringify(response))
+      if (response.status === 200) {
+        dispatch(login(response?.data))
+        navigate('/')
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
@@ -32,7 +65,11 @@ const Login = () => {
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="Username" autoComplete="username" />
+                      <CFormInput
+                        placeholder="Username"
+                        autoComplete="username"
+                        onChange={(e) => setUserName(e.target.value)}
+                      />
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
@@ -42,11 +79,17 @@ const Login = () => {
                         type="password"
                         placeholder="Password"
                         autoComplete="current-password"
+                        onChange={(e) => setPwd(e.target.value)}
                       />
                     </CInputGroup>
+                    {errMsg && (
+                      <CRow>
+                        <p className="text-danger">{errMsg}</p>
+                      </CRow>
+                    )}
                     <CRow>
                       <CCol xs={6}>
-                        <CButton color="primary" className="px-4">
+                        <CButton color="primary" className="px-4" onClick={(e) => hanldeSubmit(e)}>
                           Login
                         </CButton>
                       </CCol>
