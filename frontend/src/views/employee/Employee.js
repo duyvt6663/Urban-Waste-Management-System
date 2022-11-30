@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
 import {
     CAvatar,
     CButton,
@@ -60,110 +61,25 @@ import avatar5 from 'src/assets/images/avatars/5.jpg'
 import avatar6 from 'src/assets/images/avatars/6.jpg'
 import EmployeeRow from 'src/components/employee/EmployeeRow'
 
+const EMPLOYEE_LIST = '/account/employee'
+
 const Employee = () => {
+    const axiosPrivate = useAxiosPrivate()
     const [visible, setVisible] = useState(false)
-    const tableExample = [
-        {
-          avatar: { src: avatar1, status: 'success' },
-          user: {
-            id: 1,
-            name: 'Doan Thi Trang',
-            new: true,
-            registered: 'Jan 1, 2021',
-            phone: '0123567980',
-            email: 'trangdoan@gmail.com',
-            status: <CBadge color="success">Active</CBadge>
-          },
-          role: { name: 'Janitor' },
-          usage: {
-            value: 50,
-            period: 'Jun 11, 2021 - Jul 10, 2021',
-            color: 'success',
-          },
-          payment: { name: 'Mastercard', icon: cibCcMastercard },
-          activity: '10 sec ago',
-        },
-        {
-          avatar: { src: avatar2, status: 'danger' },
-          user: {
-            id: 2,
-            name: 'Le Van Giau',
-            new: false,
-            registered: 'Jan 1, 2021',
-            phone: '0987123789',
-            email: 'ngheo12@gmail.com',
-            status: <CBadge color="success">Active</CBadge>
-          },
-          role: { name: 'Collector' },
-          usage: {
-            value: 22,
-            period: 'Jun 11, 2021 - Jul 10, 2021',
-            color: 'info',
-          },
-          payment: { name: 'Visa', icon: cibCcVisa },
-          activity: '5 minutes ago',
-        },
-        {
-          avatar: { src: avatar3, status: 'warning' },
-          user: { 
-            id: 3, 
-            name: 'Nguyen Van C', 
-            new: true, 
-            registered: 'Jan 1, 2021',
-            phone: '0987123789',
-            email: 'thythy99@gmail.com',
-            status: <CBadge color="success">Active</CBadge>
-        },
-          role: { name: 'Janitor' },
-          usage: {
-            value: 74,
-            period: 'Jun 11, 2021 - Jul 10, 2021',
-            color: 'warning',
-          },
-          payment: { name: 'Stripe', icon: cibCcStripe },
-          activity: '1 hour ago',
-        },
-        {
-          avatar: { src: avatar4, status: 'secondary' },
-          user: { 
-            id: 4, 
-            name: 'Nguyen Van A', 
-            new: true, 
-            registered: 'Jan 1, 2021',
-            phone: '0977077629',
-            email: 'Bomavt11@gmail.com',
-            status: <CBadge color="secondary">Inactive</CBadge>
-        },
-          role: { name: 'Janitor' },
-          usage: {
-            value: 98,
-            period: 'Jun 11, 2021 - Jul 10, 2021',
-            color: 'danger',
-          },
-          payment: { name: 'PayPal', icon: cibCcPaypal },
-          activity: 'Last month',
-        },
-        {
-          avatar: { src: avatar5, status: 'success' },
-          user: {
-            id: 5,
-            name: 'Nguyen Van B',
-            new: true,
-            registered: 'Jan 1, 2021',
-            phone: '0921666111',
-            email: 'Brherjfe1@gmail.com',
-            status: <CBadge color="secondary">Inactive</CBadge>
-          },
-          role: { name: 'Collector' },
-          usage: {
-            value: 22,
-            period: 'Jun 11, 2021 - Jul 10, 2021',
-            color: 'primary',
-          },
-          payment: { name: 'Google Wallet', icon: cibCcApplePay },
-          activity: 'Last week',
-        },
-      ]
+    const [employeeList, setEmployeeList] = useState([])
+
+    useEffect(() => {
+        const getUsers = async () => {
+            try {
+                const response = await axiosPrivate.get(EMPLOYEE_LIST);
+                console.log('thinh', response);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        getUsers();
+    }, [])
 
   return (
     <section className='employee-section'>
@@ -199,7 +115,7 @@ const Employee = () => {
                     </CTableRow>
                     </CTableHead>
                     <CTableBody>
-                    {tableExample.map((item, index) => (
+                    {employeeList.map((item, index) => (
                         <>
                           <EmployeeRow item={item}></EmployeeRow>
                         </>
