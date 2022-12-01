@@ -9,6 +9,14 @@ import depot from '../../assets/images/icons/Depot.png'
 import mcp from '../../assets/images/icons/recycling-place.png'
 
 import { checkIsOfficeAddress } from 'src/utils/utils'
+const DEPOT={
+  latitude: 10.811756,
+  longtitude: 106.628212
+};
+const TREAT={
+  latitude: 10.810676,
+  longtitude: 106.625786
+};
 
 const icon = L.icon({
   iconUrl: depot,
@@ -35,16 +43,28 @@ const getMarkerOfficePopup = (params) => {
 }
 
 const createRoutineMachineLayer = ({ routeInfo, ...props }) => {
+  function getRoute(routeInfo){
+    let res = []
+    res.push(L.latLng(DEPOT.latitude, DEPOT.longtitude))
+    for(let i = 0; i < routeInfo.length; ++i) {
+      res.push(L.latLng(routeInfo[i].latitude, routeInfo[i].longtitude))
+    }
+    res.push(L.latLng(TREAT.latitude, TREAT.longtitude))
+    console.log(res)
+    return res
+  }
+  const waypointss = getRoute(routeInfo)
 
-  const waypoints = [
-    L.latLng(routeInfo.vertex[0].lati, routeInfo.vertex[0].longti),
-    L.latLng(routeInfo.vertex[1].lati, routeInfo.vertex[1].longti),
-    L.latLng(10.747325095957946, 106.64353901039668),
-  ]
+
+  // const waypoints = [
+  //   L.latLng(routeInfo.vertex[0].lati, routeInfo.vertex[0].longti),
+  //   L.latLng(routeInfo.vertex[1].lati, routeInfo.vertex[1].longti),
+  //   L.latLng(10.747325095957946, 106.64353901039668),
+  // ]
 
 
   const instance = L.Routing.control({
-    waypoints: waypoints,
+    waypoints: waypointss,
     router: L.Routing.graphHopper(process.env.REACT_APP_GRAPHHOPPER_API),
     routeLine: function (route) {
       console.log(route)
@@ -66,19 +86,18 @@ const createRoutineMachineLayer = ({ routeInfo, ...props }) => {
       return line
     },
     createMarker: (i, waypoint, n) => {
-      var vextex = routeInfo.vertex[0];
       if (checkIsOfficeAddress(waypoint.latLng.lat, waypoint.latLng.lng)) {
         return L.marker(waypoint.latLng, {
           draggable: true,
           icon: icon,
-        }).bindPopup(getMarkerOfficePopup({address: vextex.address}))
+        }).bindPopup(getMarkerOfficePopup({address: 1}))
       }
       return L.marker(waypoint.latLng, {
         draggable: true,
         icon: iconMCP,
-      }).bindPopup(getMarkerMCPPopup({address: vextex.address}))
+      }).bindPopup(getMarkerMCPPopup({address: 1}))
     },
-    show: false,
+    show: true,
     addWaypoints: false,
     routeWhileDragging: false,
     fitSelectedRoutes: false,
