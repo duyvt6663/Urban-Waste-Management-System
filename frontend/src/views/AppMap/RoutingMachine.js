@@ -2,33 +2,30 @@
 /* eslint-disable prettier/prettier */
 import React, { useEffect, useState } from 'react'
 import L from 'leaflet'
-// import { createControlComponent } from '@react-leaflet/core'
 import 'leaflet-routing-machine'
 import 'lrm-graphhopper'
 import { useMap } from "react-leaflet"
 import depot from '../../assets/images/icons/Depot.png'
 import mcp from '../../assets/images/icons/recycling-place.png'
-import { checkIsOfficeAddress } from 'src/utils/utils'
+import treat from '../../assets/images/icons/recycling-plant.png'
+import {checkIsDepot, checkIsTreat} from 'src/utils/utils'
 import PropTypes from 'prop-types'
+import {DEPOT, TREAT} from './AppMap'
 
-const DEPOT={
-  latitude: 10.811756,
-  longtitude: 106.628212
-};
-const TREAT={
-  latitude: 10.810676,
-  longtitude: 106.625786
-};
 
-const icon = L.icon({
+const iconDEPOT = L.icon({
   iconUrl: depot,
   iconSize: [40, 40],
 })
-
+const iconTREAT = L.icon({
+  iconUrl: treat,
+  iconSize: [40, 40],
+})
 const iconMCP = L.icon({
   iconUrl: mcp,
   iconSize: [40, 40],
 })
+export {iconDEPOT, iconTREAT, iconMCP}
 
 const getMarkerMCPPopup = (params) => {
   return `
@@ -52,7 +49,6 @@ const Routing = ({routeInfo,...props}) => {
     for(let i = 0; i < x.length; ++i) 
       res.push(L.latLng(x[i].latitude, x[i].longtitude))
     res.push(L.latLng(TREAT.latitude, TREAT.longtitude))
-    console.log(res)
     return res
   }
   const waypointss = getRoute(routeInfo)
@@ -66,10 +62,16 @@ const Routing = ({routeInfo,...props}) => {
         styles: [{ color: "#FD4F4F", weight: 4 }]
       },
       createMarker: (i, waypoint, n) => {
-        if (checkIsOfficeAddress(waypoint.latLng.lat, waypoint.latLng.lng)) {
+        if (i == 0) {
           return L.marker(waypoint.latLng, {
             draggable: true,
-            icon: icon,
+            icon: iconDEPOT,
+          }).bindPopup(getMarkerOfficePopup({address: 1}))
+        }
+        else if(i == n-1) {
+          return L.marker(waypoint.latLng, {
+            draggable: true,
+            icon: iconTREAT,
           }).bindPopup(getMarkerOfficePopup({address: 1}))
         }
         return L.marker(waypoint.latLng, {

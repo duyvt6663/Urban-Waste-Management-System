@@ -16,6 +16,8 @@ import {
   CListGroupItem,
 } from '@coreui/react';
 import routes from 'src/routes';
+import {iconDEPOT, iconTREAT, iconMCP} from './RoutingMachine'
+import { checkIsDepot, checkIsTreat } from 'src/utils/utils';
 
 const MCP_LIST = '/map/'
 const ROUTE_LIST = '/map/route/'
@@ -50,14 +52,15 @@ const maps = {
 //   )
 // }
 
-const depot={
+const DEPOT={
   latitude: 10.811756,
   longtitude: 106.628212
-};
-const treat={
+}
+const TREAT={
   latitude: 10.810676,
   longtitude: 106.625786
-};
+}
+export {DEPOT, TREAT}
 
 const AppMap3 = () => {
   const axiosPrivate = useAxiosPrivate()
@@ -87,12 +90,22 @@ const AppMap3 = () => {
     })
   }
 
+  function getIcon(Lat, Lng) {
+    if (checkIsDepot(Lat, Lng)) {
+      return iconDEPOT
+    }
+    else if(checkIsTreat(Lat, Lng)) {
+      return iconTREAT
+    }
+    return iconMCP
+  }
+
   function process(data) {
-    data[0].push(depot)
-    data[0].push(treat)
-    return data[0].map((point) => (
+    data.push(DEPOT)
+    data.push(TREAT)
+    return data.map((point) => (
         <>
-          <Marker key={point.asset_id} position={[point.latitude, point.longtitude]} >
+          <Marker key={point.asset_id} position={[point.latitude, point.longtitude]} icon={getIcon(point.latitude, point.longtitude)} >
             <Popup>
               <CListGroup>
                 <CListGroupItem>ID: {point.asset_id}</CListGroupItem>
@@ -123,7 +136,6 @@ const AppMap3 = () => {
         id: temp.asset_id
       })
     }
-    console.log(res)
     setMarker(<Routing routeInfo={res} key={id} />)
   }
 
@@ -145,9 +157,9 @@ const AppMap3 = () => {
     const getMCPs = async () => {
       try {
           const response = await axiosPrivate.get(MCP_LIST);
-          // console.log(response);
+          console.log(response);
           setMCPs(response.data[0])
-          setMarker(process(response.data))
+          setMarker(process(response.data[0]))
       } catch (err) {
           console.error(err);
       }
@@ -194,7 +206,7 @@ const AppMap3 = () => {
             <CRow>
               <CListGroup>
                 {Routes.map(x => (
-                  <CButton key = {x.id} variant='outline' color='danger' onClick={()=>handleClickRoute(x.id)}>
+                  <CButton key = {x.id} size="sm" variant='outline' color='danger' onClick={()=>handleClickRoute(x.id)}>
                     route {x.id}
                   </CButton>
                 ))}
@@ -213,3 +225,4 @@ const AppMap3 = () => {
 
 
 export default AppMap3
+

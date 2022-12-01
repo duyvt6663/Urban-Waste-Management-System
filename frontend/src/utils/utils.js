@@ -1,7 +1,8 @@
-export function checkIsOfficeAddress(x, y) {
-  return x === 10.777823448181152 && y === 106.65606689453125
+import { DEPOT, TREAT } from '../../src/views/AppMap/AppMap'
+export function checkIsDepot(x, y) {
+  return x === DEPOT.latitude && y === DEPOT.longtitude
 }
 
-export function checkIsDestAddress(x, y) {
-  return x === 10.777823448181152 && y === 106.65606689453125
+export function checkIsTreat(x, y) {
+  return x === TREAT.latitude && y === TREAT.longtitude
 }
