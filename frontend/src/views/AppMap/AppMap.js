@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { useEffect, useState } from 'react';
 import {MapContainer, TileLayer, Marker, Popup} from 'react-leaflet';
-import RoutineMachine from './RoutingMachine';
+import Routing from './RoutingMachine';
 import useAxiosPrivate from 'src/hooks/useAxiosPrivate';
 import mcp from '../../assets/images/icons/recycling-place.png';
 import axios from 'axios';
@@ -115,9 +115,8 @@ const AppMap3 = () => {
         console.log(error);
     });
     let res = []
-    for(let i = 0; i < data['ordered MCPs'].length; ++i) {
-      let temp = MCPs.filter(mcp => mcp.asset_id === data['ordered MCPs'][i])[0]
-      console.log(temp)
+    for(let i = 0; i < data['ordered_MCPs'].length; ++i) {
+      let temp = MCPs.filter(mcp => mcp.asset_id === data['ordered_MCPs'][i])[0]
       res.push({
         latitude: temp.latitude,
         longtitude: temp.longtitude,
@@ -125,7 +124,7 @@ const AppMap3 = () => {
       })
     }
     console.log(res)
-    setMarker(<RoutineMachine routeInfo={res} key={3} />)
+    setMarker(<Routing routeInfo={res} key={id} />)
   }
 
   const handleAdd = (point) => {
