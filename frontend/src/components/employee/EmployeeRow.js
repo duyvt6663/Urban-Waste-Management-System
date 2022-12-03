@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable prettier/prettier */
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import {
   CAvatar,
   CButton,
@@ -60,32 +61,37 @@ import avatar5 from 'src/assets/images/avatars/5.jpg'
 import avatar6 from 'src/assets/images/avatars/6.jpg'
 
 const EmployeeRow = (props) => {
+  const navigate = useNavigate();
   const [visible, setVisible] = useState(false)
+  const handleViewTask = (e) => {
+    e.preventDefault()
+    navigate(`/map/employee/${e.target.id}`);
+  }
 
   return (
     <>
       <CTableRow v-for="item in tableItems" key={props.index}>
         <CTableDataCell>
-          <div>#{props.item.user.id}</div>
+          <div>#{props.user.id}</div>
           <div className="small text-medium-emphasis">
             {/* <span>{item.user.new ? 'New' : 'Recurring'}</span> | Registered:{' '}
                     {item.user.registered} */}
           </div>
         </CTableDataCell>
         <CTableDataCell className="text-center">
-          <div>{props.item.user.name}</div>
+          <div>{props.user.name}</div>
         </CTableDataCell>
         <CTableDataCell>
-          <div>{props.item.role.name}</div>
+          {/* <div>{props.user.name}</div> */}
         </CTableDataCell>
         <CTableDataCell>
-          <div>{props.item.user.phone}</div>
-          <div>{props.item.user.email}</div>
+          <div>{props.user.phone}</div>
+          <div>{props.user.email}</div>
         </CTableDataCell>
         <CTableDataCell>
-          <div>{props.item.user.registered}</div>
+          <div>{props.user.start_date}</div>
         </CTableDataCell>
-        <CTableDataCell>{props.item.user.status}</CTableDataCell>
+        <CTableDataCell>{props.user.is_active}</CTableDataCell>
         <CTableDataCell>
           <CButton color="primary" variant="outline" onClick={() => setVisible(!visible)}>
             Show
@@ -104,8 +110,8 @@ const EmployeeRow = (props) => {
                 ></CImage>
               </div>
               <div className="detail-container">
-                <h4>{props.item.user.name}</h4>
-                <p>User since: {props.item.user.registered}</p>
+                <h4>{props.user.name}</h4>
+                <p>User since: {props.user.start_date}</p>
                 <CButton size="sm" color="info" className="text-white mr-5 update-btn">
                   Update
                 </CButton>
@@ -113,8 +119,8 @@ const EmployeeRow = (props) => {
                   Delete
                 </CButton>
                 <br/>
-                <CButton size="sm" color="warning" className="text-white assign-btn">
-                  Assign Tasks
+                <CButton size="sm" color="warning" className="text-white assign-btn" id={props.user.id} disabled={!props.user.is_collector} onClick={(e) => handleViewTask(e)}>
+                  View Tasks
                 </CButton>
               </div>
             </div>

@@ -30,56 +30,30 @@ import {
     CBadge,
     CImage
   } from '@coreui/react'
-import {
-    cibCcAmex,
-    cibCcApplePay,
-    cibCcMastercard,
-    cibCcPaypal,
-    cibCcStripe,
-    cibCcVisa,
-    cibGoogle,
-    cibFacebook,
-    cibLinkedin,
-    cifBr,
-    cifEs,
-    cifFr,
-    cifIn,
-    cifPl,
-    cifUs,
-    cibTwitter,
-    cilCloudDownload,
-    cilPeople,
-    cilUser,
-    cilUserFemale,
-  } from '@coreui/icons'
 import './style.css'
-import avatar1 from 'src/assets/images/avatars/1.jpg'
-import avatar2 from 'src/assets/images/avatars/2.jpg'
-import avatar3 from 'src/assets/images/avatars/3.jpg'
-import avatar4 from 'src/assets/images/avatars/4.jpg'
-import avatar5 from 'src/assets/images/avatars/5.jpg'
-import avatar6 from 'src/assets/images/avatars/6.jpg'
 import EmployeeRow from 'src/components/employee/EmployeeRow'
 
 const EMPLOYEE_LIST = '/account/employee'
 
 const Employee = () => {
     const axiosPrivate = useAxiosPrivate()
-    const [visible, setVisible] = useState(false)
     const [employeeList, setEmployeeList] = useState([])
 
     useEffect(() => {
         const getUsers = async () => {
             try {
                 const response = await axiosPrivate.get(EMPLOYEE_LIST);
-                console.log('thinh', response);
+                console.log("Employee -> ", response.data)
+                if(response) {
+                    setEmployeeList(response.data)
+                }
             } catch (err) {
                 console.error(err);
             }
         }
 
         getUsers();
-    }, [])
+    }, [axiosPrivate])
 
   return (
     <section className='employee-section'>
@@ -96,7 +70,7 @@ const Employee = () => {
                             <CFormInput type="email" id="searchInput" placeholder="Type string..." aria-describedby="searchInput" />
                         </CCol>
                     </CForm>
-                    <CButton color="primary" size="small">
+                    <CButton color="primary" size="sm">
                     Add employee
                     </CButton>
                 </div>
@@ -116,9 +90,7 @@ const Employee = () => {
                     </CTableHead>
                     <CTableBody>
                     {employeeList.map((item, index) => (
-                        <>
-                          <EmployeeRow item={item}></EmployeeRow>
-                        </>
+                          <EmployeeRow user={item} key={index}></EmployeeRow>
                     ))}
                     </CTableBody>
                 </CTable>
