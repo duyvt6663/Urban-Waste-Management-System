@@ -36,10 +36,12 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { axiosPrivate } from 'src/api/axios'
 import moment from 'moment/moment'
 import { Alert } from '@coreui/coreui'
+import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
 
 const ADD_EMPLOYEE = '/account/employee/'
 
 const AddEmployee = () => {
+  const axiosPrivate = useAxiosPrivate()
   const [inputs, setInputs] = useState({role: 0, salary: 0})
   const [selectedDate, setSelectedDate] = useState(null)
   const [errMsg, setErrMsg] = useState('')
