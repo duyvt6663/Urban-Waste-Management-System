@@ -70,6 +70,7 @@ const AppMap3 = () => {
   const [Routes, setRoute] = useState([])
   const [map, setMap] = useState(null)
   const [optimizePoints, setOptimizePoints] = useState([])
+  const [resetFlag, setResetFlag] = useState(false)
   const chosenPoints = optimizePoints.map((pnt) => {
     return (
       <div key={pnt.MCP_id}>
@@ -109,7 +110,10 @@ const AppMap3 = () => {
             <Popup>
               <CListGroup>
                 <CListGroupItem>ID: {point.asset_id}</CListGroupItem>
-                <CListGroupItem>Load: {point.load}</CListGroupItem>
+                <CListGroupItem>Load: {point.load} kg</CListGroupItem>
+                <CListGroupItem>Filled: {point.percentage*100} %</CListGroupItem>
+                <CListGroupItem>Population: {point.pop_density} persons/sq.km</CListGroupItem>
+                <CListGroupItem>Janitors: {point.janitor_count} persons</CListGroupItem>
                 <CButton onClick={() => handleAdd(point)}>Add</CButton>
               </CListGroup>
             </Popup>
@@ -152,6 +156,7 @@ const AppMap3 = () => {
 
   const handleReset = () => {
     setOptimizePoints([])
+    setResetFlag(!resetFlag)
   }
   useEffect(()=>{
     const getMCPs = async () => {
@@ -175,7 +180,7 @@ const AppMap3 = () => {
     }
     getMCPs();
     getRoutes();
-  },[])
+  },[resetFlag])
 
   return (
     <>
