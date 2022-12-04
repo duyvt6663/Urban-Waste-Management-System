@@ -29,17 +29,14 @@ export {iconDEPOT, iconTREAT, iconMCP}
 
 const getMarkerMCPPopup = (params) => {
   return `
-    <div><strong>Location:</strong> ${params.address}</div>
-    <div><strong>Capacity:</strong> ${params.capacity}</div>
-    <div><strong>Last time:</strong> ${params.capacity}</div>
+    <div><strong>ID:</strong> ${params.asset_id}</div>
+    <div><strong>Load:</strong> ${params.load} kg</div>
+    <div><strong>Filled:</strong> ${params.percentage*100} %</div>
+    <div><strong>Population:</strong> ${params.pop_density} p/sq.km</div>
+    <div><strong>Janitors:</strong> ${params.janitor_count} p</div>
   `
 }
 
-const getMarkerOfficePopup = (params) => {
-  return `
-    <div><strong>Location:</strong> ${params.address}</div>
-  `
-}
 
 const Routing = ({routeInfo,...props}) => {
   const map = useMap();
@@ -66,18 +63,18 @@ const Routing = ({routeInfo,...props}) => {
           return L.marker(waypoint.latLng, {
             draggable: true,
             icon: iconDEPOT,
-          }).bindPopup(getMarkerOfficePopup({address: 1}))
+          })
         }
         else if(i == n-1) {
           return L.marker(waypoint.latLng, {
             draggable: true,
             icon: iconTREAT,
-          }).bindPopup(getMarkerOfficePopup({address: 1}))
+          })
         }
         return L.marker(waypoint.latLng, {
           draggable: true,
           icon: iconMCP,
-        }).bindPopup(getMarkerMCPPopup({address: 1}))
+        }).bindPopup(getMarkerMCPPopup(routeInfo[i-1]))
       },
       show: false,
       addWaypoints: false,

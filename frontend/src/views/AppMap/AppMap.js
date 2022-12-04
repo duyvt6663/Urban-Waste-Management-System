@@ -27,31 +27,6 @@ const maps = {
   base: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 };
 
-// const AppMap = () => {
-//   //Set initial state for the map
-//   const [map, setMap] = useState(null);
-
-//   return (
-//     <>
-//       <MapContainer
-//         center={position}
-//         zoom={16}
-//         whenReady={map => setMap(map)}
-//       >
-//         <TileLayer
-//           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-//           url={maps.base}
-//         />
-//         {
-//           routeArray.map((x, index) => (
-//             <RoutineMachine routeInfo={x} key={index} />
-//           ))
-//         }
-//       </MapContainer>
-//     </>
-//   )
-// }
-
 const DEPOT={
   latitude: 10.811756,
   longtitude: 106.628212
@@ -69,21 +44,33 @@ const AppMap3 = () => {
   const [MCPs, setMCPs] = useState([])
   const [Routes, setRoute] = useState([])
   const [map, setMap] = useState(null)
-  const [optimizePoints, setOptimizePoints] = useState([])
-  const [resetFlag, setResetFlag] = useState(false)
-  const chosenPoints = optimizePoints.map((pnt) => {
-    return (
-      <div key={pnt.MCP_id}>
-        <span>MCP ID: {pnt.MCP_id}</span>
-        <CButton color="primary" onClick={() => handleRemove(pnt.MCP_id)}>
-          Remove
-        </CButton>
-      </div>
-    )
-  })
+  const [chosenPoints, setChosenPoints] = useState([])
+
+  useEffect(()=>{
+    const getMCPs = async () => {
+      try {
+          const response = await axiosPrivate.get(MCP_LIST);
+          setMCPs(response.data[0])
+          setMarker(createMarker(response.data[0]))
+      } catch (err) {
+          console.error(err);
+      }
+    }
+    const getRoutes = async () => {
+      try {
+        const response = await axiosPrivate.get(ROUTE_LIST);
+        // console.log(response);
+        setRoute(response.data)
+      } catch (err) {
+          console.error(err);
+      }
+    }
+    getMCPs();
+    getRoutes();
+  },[])
 
   function handleRemove(MCP_id) {
-    setOptimizePoints((prev) => {
+    setChosenPoints((prev) => {
       const ids = prev.map((elem) => elem.MCP_id)
       const index = ids.indexOf(MCP_id)
 
@@ -101,7 +88,7 @@ const AppMap3 = () => {
     return iconMCP
   }
 
-  function process(data) {
+  function createMarker(data) {
     data.push(DEPOT)
     data.push(TREAT)
     return data.map((point) => (
@@ -109,11 +96,11 @@ const AppMap3 = () => {
           <Marker key={point.asset_id} position={[point.latitude, point.longtitude]} icon={getIcon(point.latitude, point.longtitude)} >
             <Popup>
               <CListGroup>
-                <CListGroupItem>ID: {point.asset_id}</CListGroupItem>
-                <CListGroupItem>Load: {point.load} kg</CListGroupItem>
-                <CListGroupItem>Filled: {point.percentage*100} %</CListGroupItem>
-                <CListGroupItem>Population: {point.pop_density} persons/sq.km</CListGroupItem>
-                <CListGroupItem>Janitors: {point.janitor_count} persons</CListGroupItem>
+                <CListGroupItem><strong>ID:</strong> {point.asset_id}</CListGroupItem>
+                <CListGroupItem><strong>Load:</strong> {point.load} kg</CListGroupItem>
+                <CListGroupItem><strong>Filled:</strong> {point.percentage*100} %</CListGroupItem>
+                <CListGroupItem><strong>Population</strong>: {point.pop_density} p/sq.km</CListGroupItem>
+                <CListGroupItem><strong>Janitors</strong>: {point.janitor_count} p</CListGroupItem>
                 <CButton onClick={() => handleAdd(point)}>Add</CButton>
               </CListGroup>
             </Popup>
@@ -134,53 +121,61 @@ const AppMap3 = () => {
     let res = []
     for(let i = 0; i < data['ordered_MCPs'].length; ++i) {
       let temp = MCPs.filter(mcp => mcp.asset_id === data['ordered_MCPs'][i])[0]
-      res.push({
-        latitude: temp.latitude,
-        longtitude: temp.longtitude,
-        id: temp.asset_id
-      })
+      res.push(temp)
     }
     setMarker(<Routing routeInfo={res} key={id} />)
   }
 
   const handleAdd = (point) => {
-    setOptimizePoints((prev) => {
-      const included = prev.some((elem) => elem.MCP_id === point.MCP_id)
-      if (included) return prev
-
-      return [...prev, { latitude: point.lati, longtitude: point.longti, MCP_id: point.MCP_id }]
+    setChosenPoints((prev) => {
+      const included = prev.some((elem) => elem.MCP_id === point.asset_id)
+      if (included) 
+        return prev
+      return [...prev, { MCP_id: point.asset_id, longtitude: point.longtitude, latitude: point.latitude }]
     })
   }
 
-  const handleSubmit = () => {}
+  async function handleSubmit(){
+    if(chosenPoints.length === 0)
+      return
+    const data = await axiosPrivate.post(ROUTE_LIST, chosenPoints)
+      .then(function (response) {
+        // I need this data here ^^
+        console.log(response.data)
+        return response.data;
+    })
+      .catch(function (error) {
+        console.log(error);
+    });
+    let res = []
+    for(let i = 0; i < data['ordered_MCPs'].length; ++i) {
+      let temp = MCPs.filter(mcp => mcp.asset_id === data['ordered_MCPs'][i])[0]
+      res.push(temp)
+    }
+    setRoute((prev) => {
+      return [...prev, {id: data.route_id, distance: data.distance, load: data.load}]
+    })
+    setMarker(<Routing routeInfo={res} key={data.id} />)
+    setChosenPoints([]) // reset chosen points
+  }
 
   const handleReset = () => {
-    setOptimizePoints([])
-    setResetFlag(!resetFlag)
+    // setOptimizePoints([])
+    setMarker(createMarker(MCPs))
+    setChosenPoints([])
   }
-  useEffect(()=>{
-    const getMCPs = async () => {
-      try {
-          const response = await axiosPrivate.get(MCP_LIST);
-          console.log(response);
-          setMCPs(response.data[0])
-          setMarker(process(response.data[0]))
-      } catch (err) {
-          console.error(err);
-      }
-    }
-    const getRoutes = async () => {
-      try {
-        const response = await axiosPrivate.get(ROUTE_LIST);
-        // console.log(response);
-        setRoute(response.data)
-      } catch (err) {
-          console.error(err);
-      }
-    }
-    getMCPs();
-    getRoutes();
-  },[resetFlag])
+  function DisplayChosenPoints(){
+    return chosenPoints.map((pnt) => {
+      return (
+        <div key={pnt.MCP_id}>
+          <span>MCP ID: {pnt.MCP_id}     </span>
+          <CButton color="primary" onClick={() => handleRemove(pnt.MCP_id)} size="sm">
+            Remove
+          </CButton>
+        </div>
+      )
+    })
+  }
 
   return (
     <>
@@ -199,11 +194,11 @@ const AppMap3 = () => {
           <CCol>
             <CRow>
               <CButtonGroup>
-                <CButton color="primary" onClick={handleSubmit}>
-                  Submit
+                <CButton color="primary" onClick={handleSubmit} size="sm">
+                  Create route
                 </CButton>
 
-                <CButton color="primary" onClick={handleReset}>
+                <CButton color="primary" onClick={handleReset} size="sm">
                   Reset
                 </CButton>
               </CButtonGroup>
@@ -219,7 +214,7 @@ const AppMap3 = () => {
             </CRow>
             <CRow className="pickedList">
               <CCallout color="success">Picked MCP List</CCallout>
-              {chosenPoints}
+              {DisplayChosenPoints()}
             </CRow>
           </CCol>
         </CRow>
