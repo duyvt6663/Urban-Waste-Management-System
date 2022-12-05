@@ -27,7 +27,14 @@ const iconMCP = L.icon({
 })
 export {iconDEPOT, iconTREAT, iconMCP}
 
-const getMarkerMCPPopup = (params) => {
+const getLinePopUp = (params) => {
+  return `
+    <div><strong>ID:</strong> ${params.id}</div>
+    <div><strong>Load:</strong> ${params.load} kg</div>
+    <div><strong>Distance:</strong> ${params.distance/1000} km</div>
+  `
+}
+const getMarkerMCPPopup= (params) => {
   return `
     <div><strong>ID:</strong> ${params.asset_id}</div>
     <div><strong>Load:</strong> ${params.load} kg</div>
@@ -38,7 +45,7 @@ const getMarkerMCPPopup = (params) => {
 }
 
 
-const Routing = ({routeInfo,...props}) => {
+const Routing = ({routeInfo,route,...props}) => {
   const map = useMap();
   function getRoute(x){
     let res = []
@@ -56,6 +63,7 @@ const Routing = ({routeInfo,...props}) => {
     const routingControl = L.Routing.control({
       waypoints: waypointss,
       lineOptions: {
+        addWaypoints: false,
         styles: [{ color: "#FD4F4F", weight: 4 }]
       },
       createMarker: (i, waypoint, n) => {
@@ -76,6 +84,15 @@ const Routing = ({routeInfo,...props}) => {
           icon: iconMCP,
         }).bindPopup(getMarkerMCPPopup(routeInfo[i-1]))
       },
+      routeLine: function(road){
+        let line = L.Routing.line(road,{
+          addWaypoints: false
+        })
+        line.eachLayer((l)=>{
+          l.bindPopup(getLinePopUp(route))
+        })
+        return line
+      },
       show: false,
       addWaypoints: false,
       routeWhileDragging: false,
@@ -89,6 +106,7 @@ const Routing = ({routeInfo,...props}) => {
   return null
 }
 Routing.propTypes = {
-  routeInfo: PropTypes.arrayOf(PropTypes.element)
+  routeInfo: PropTypes.arrayOf(PropTypes.element),
+  route: PropTypes.object
 }
 export default Routing

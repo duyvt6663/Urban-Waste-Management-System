@@ -65,7 +65,7 @@ const EmployeeRow = (props) => {
   const [visible, setVisible] = useState(false)
   const handleViewTask = (e) => {
     e.preventDefault()
-    navigate(`/map/employee/${e.target.id}`);
+    navigate(`/employee/${props.user.id}`);
   }
 
   return (
@@ -82,7 +82,7 @@ const EmployeeRow = (props) => {
           <div>{props.user.name}</div>
         </CTableDataCell>
         <CTableDataCell>
-          {/* <div>{props.user.name}</div> */}
+          { <div>{props.user.is_collector?'collector':'janitor'}</div> }
         </CTableDataCell>
         <CTableDataCell>
           <div>{props.user.phone}</div>
