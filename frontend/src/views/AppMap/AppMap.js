@@ -209,7 +209,7 @@ const AppMap3 = () => {
                     </CCol>
 
                     <CCol>
-                        <CRow>
+                        <CButtonGroup>
                             <CCol>
                                 <CButton color="primary" onClick={handleSubmit} size="sm">
                                     Create route
@@ -220,7 +220,7 @@ const AppMap3 = () => {
                                     Reset
                                 </CButton>
                             </CCol>
-                        </CRow>
+                        </CButtonGroup>
                         <CRow>
                             <CListGroup>
                                 {Routes.map(x => (
