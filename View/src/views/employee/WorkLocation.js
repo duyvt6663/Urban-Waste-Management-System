@@ -78,17 +78,31 @@ const WorkLocation = () => {
             }
         }
         getRoute()
-        if (profile && route)
+    }, [profile])
+
+    useEffect(() => {
+        if (route)
             handleCurrentRoute()
-    }, [profile, route])
+    }, [route])
 
-    // useEffect(() => {
-
-    // }, [route])
-
-    function handleAssign() {
+    async function handleAssign(id) {
         // pop route table on
-
+        setProfile(prev => {
+            return {
+                ...prev,
+                route_id: id
+            }
+        })
+        // update the assignment back into database
+        let res = {
+            route_id: id,
+            role: 1
+        }
+        await axiosPrivate.put(`${EMPLOYEE}${params.id}/`, res).then((response) => {
+            return response.data
+        }).catch((err) => {
+            console.log(err)
+        })
     }
     function handleCurrentRoute() {
         // display current route layout
@@ -97,10 +111,25 @@ const WorkLocation = () => {
             let res = []
             for (let i = 0; i < route.ordered_MCPs.length; ++i)
                 res.push(MCPs.filter((mcp) => { return mcp.asset_id == route.ordered_MCPs[i] })[0])
-            return <Routing routeInfo={res} route={Routes.filter((route => { return route.id == profile.route_id }))[0]} key={profile.route_id} />
+            return <Routing routeInfo={res} route={Routes.filter((ro => { return route.route_id == ro.id }))[0]} key={profile.route_id} />
         })
     }
 
+    async function handleClickRoute(id) {
+        const data = await axiosPrivate.get(`${ROUTE_LIST}${id}/`)
+            .then(function (response) {
+                return response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        let res = []
+        for (let i = 0; i < data['ordered_MCPs'].length; ++i) {
+            let temp = MCPs.filter(mcp => mcp.asset_id === data['ordered_MCPs'][i])[0]
+            res.push(temp)
+        }
+        setMarkers(<Routing routeInfo={res} route={Routes.filter((route => { return route.id == id }))[0]} key={id} />)
+    }
 
     return (
         <>
@@ -123,32 +152,29 @@ const WorkLocation = () => {
                                     Current route
                                 </CButton>
                             </CCol>
-                            <CButton color="primary" onClick={handleAssign} size="sm">
-                                Assign
-                            </CButton>
-                            <CButton color="primary" size="sm">
+                            <CButton color="primary" onClick={handleOptimize} size="sm">
                                 Optimize
                             </CButton>
                         </CButtonGroup>
+                        <CRow>
+                            <CListGroup>
+                                {Routes.map(x => (
+                                    <CButton key={x.id} size="sm" variant='outline' color='danger' onClick={() => { handleClickRoute(x.id) }}>
+                                        <CRow>
+                                            <CCol>
+                                                route {x.id}
+                                            </CCol>
+                                            <CCol>
+                                                <CButton color="primary" onClick={(e) => { e.stopPropagation(); handleAssign(x.id) }} size="sm">
+                                                    Assign
+                                                </CButton>
+                                            </CCol>
+                                        </CRow>
+                                    </CButton>
+                                ))}
+                            </CListGroup>
+                        </CRow>
                     </CCol>
-                </CRow>
-                <CRow>
-                    <CListGroup>
-                        {/* {Routes.map(x => (
-                            <CButton key={x.id} size="sm" variant='outline' color='danger' onClick={() => { handleClickRoute(x.id) }}>
-                                <CRow>
-                                    <CCol>
-                                        route {x.id}
-                                    </CCol>
-                                    <CCol>
-                                        <CButton color="primary" onClick={(e) => { e.stopPropagation(); handleDelete(x.id) }} size="sm">
-                                            Delete
-                                        </CButton>
-                                    </CCol>
-                                </CRow>
-                            </CButton>
-                        ))} */}
-                    </CListGroup>
                 </CRow>
             </CContainer >
         </>

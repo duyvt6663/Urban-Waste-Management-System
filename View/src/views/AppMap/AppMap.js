@@ -153,7 +153,7 @@ const AppMap3 = () => {
         setRoute((prev) => {
             return [...prev, { id: data.route_id, distance: data.distance, load: data.load }]
         })
-        setMarker(<Routing routeInfo={res} key={data.id} />)
+        setMarker(<Routing routeInfo={res} key={data.route_id} />)
         setChosenPoints([]) // reset chosen points
     }
 
