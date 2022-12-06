@@ -16,9 +16,8 @@ import {
     CListGroup,
     CListGroupItem,
 } from '@coreui/react'
-import { response } from 'express';
 
-const EMPLOYEE = '/employee/'
+const EMPLOYEE = '/account/employee/'
 const MCP_LIST = '/map/'
 const ROUTE_LIST = '/map/route/'
 const position = [10.7724483, 106.6582936]
@@ -39,11 +38,8 @@ const WorkLocation = () => {
     useEffect(() => {
         const getProfile = async () => {
             try {
-                const response = await axiosPrivate.get(`${EMPLOYEE}${params.id}/`);
-                // console.log("Employee -> ", response.data)
-                if (response) {
-                    setProfile(response.data)
-                }
+                const response = await axiosPrivate.get(`${EMPLOYEE}${params.id}/`)
+                setProfile(response.data)
             } catch (err) {
                 console.error(err);
             }
@@ -52,6 +48,7 @@ const WorkLocation = () => {
             try {
                 const response = await axiosPrivate.get(MCP_LIST);
                 setMCPs(response.data[0])
+
             } catch (err) {
                 console.error(err);
             }
@@ -64,32 +61,42 @@ const WorkLocation = () => {
                 console.error(err);
             }
         }
-        const getRoute = async () => {
-            try {
-                const response = await axiosPrivate.get(`${ROUTE_LIST}${profile.route_id}/`)
-                setRoute(response.data)
-            } catch (err) {
-                console.error(err)
-            }
-        }
         getProfile()
         getMCPs()
         getRoutes()
-        getRoute()
-        handleCurrentRoute()
     }, [])
+
+    useEffect(() => {
+        const getRoute = async () => {
+            if (profile) {
+                try {
+                    const response = await axiosPrivate.get(`${ROUTE_LIST}${profile.route_id}/`)
+                    setRoute(response.data)
+                } catch (err) {
+                    console.error(err)
+                }
+            }
+        }
+        getRoute()
+        if (profile && route)
+            handleCurrentRoute()
+    }, [profile, route])
+
+    // useEffect(() => {
+
+    // }, [route])
 
     function handleAssign() {
         // pop route table on
 
     }
-    async function handleCurrentRoute() {
+    function handleCurrentRoute() {
         // display current route layout
         setMarkers(() => {
             // filter out which MCPs is in current route
             let res = []
-            for (let i = 0; i < profile.ordered_MCPs.length; ++i)
-                res.push(MCPs.filter((mcp) => { return mcp.asset_id == profile.ordered_MCPs[i] })[0])
+            for (let i = 0; i < route.ordered_MCPs.length; ++i)
+                res.push(MCPs.filter((mcp) => { return mcp.asset_id == route.ordered_MCPs[i] })[0])
             return <Routing routeInfo={res} route={Routes.filter((route => { return route.id == profile.route_id }))[0]} key={profile.route_id} />
         })
     }
@@ -119,7 +126,7 @@ const WorkLocation = () => {
                             <CButton color="primary" onClick={handleAssign} size="sm">
                                 Assign
                             </CButton>
-                            <CButton color="primary" onClick={handleAssign} size="sm">
+                            <CButton color="primary" size="sm">
                                 Optimize
                             </CButton>
                         </CButtonGroup>
