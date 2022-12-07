@@ -153,8 +153,8 @@ const AppMap3 = () => {
         setRoute((prev) => {
             return [...prev, { id: data.route_id, distance: data.distance, load: data.load }]
         })
-        setMarker(<Routing routeInfo={res} key={data.route_id} />)
         setChosenPoints([]) // reset chosen points
+        setMarker(<Routing routeInfo={res} key={data.route_id} />)
     }
 
     const handleReset = () => {
@@ -210,7 +210,7 @@ const AppMap3 = () => {
 
                     <CCol>
                         <CButtonGroup>
-                            <CCol>
+                            <CCol lg={1.2}>
                                 <CButton color="primary" onClick={handleSubmit} size="sm">
                                     Create route
                                 </CButton>

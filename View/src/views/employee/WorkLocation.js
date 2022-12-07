@@ -2,10 +2,13 @@
 import React, { useEffect, useState } from 'react'
 import { Routes, Route, useParams } from 'react-router-dom'
 import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import Routing from '../AppMap/RoutingMachine';
-import { iconDEPOT, iconTREAT, iconMCP } from '../AppMap/RoutingMachine'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import Routing, { SimulatorRouting } from '../AppMap/RoutingMachine';
+// import { iconDEPOT, iconTREAT, iconMCP } from '../AppMap/RoutingMachine'
+import { DEPOT, TREAT } from '../AppMap/AppMap'
 import { checkIsDepot, checkIsTreat } from 'src/utils/utils';
+import L from 'leaflet'
+import 'leaflet-routing-machine'
 import {
     CContainer,
     CRow,
@@ -20,6 +23,7 @@ import {
 const EMPLOYEE = '/account/employee/'
 const MCP_LIST = '/map/'
 const ROUTE_LIST = '/map/route/'
+const VEHICLE = '/account/employee/vehicle/'
 const position = [10.7724483, 106.6582936]
 const maps = {
     base: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -104,15 +108,15 @@ const WorkLocation = () => {
             console.log(err)
         })
     }
-    function handleCurrentRoute() {
+
+    async function handleCurrentRoute(k = route, tem = 0) {
+        // filter out which MCPs is in current route
+        let res = []
+        for (let i = 0; i < k.ordered_MCPs.length; ++i)
+            res.push(MCPs.filter((mcp) => { return mcp.asset_id == k.ordered_MCPs[i] })[0])
         // display current route layout
-        setMarkers(() => {
-            // filter out which MCPs is in current route
-            let res = []
-            for (let i = 0; i < route.ordered_MCPs.length; ++i)
-                res.push(MCPs.filter((mcp) => { return mcp.asset_id == route.ordered_MCPs[i] })[0])
-            return <Routing routeInfo={res} route={Routes.filter((ro => { return route.route_id == ro.id }))[0]} key={profile.route_id} />
-        })
+        setMarkers(<Routing routeInfo={res} route={Routes.filter((ro => { return k.route_id == ro.id }))[0]} key={k.route_id + 6 + tem} />)
+        return res
     }
 
     async function handleClickRoute(id) {
@@ -123,16 +127,45 @@ const WorkLocation = () => {
             .catch(function (error) {
                 console.log(error);
             });
-        let res = []
-        for (let i = 0; i < data['ordered_MCPs'].length; ++i) {
-            let temp = MCPs.filter(mcp => mcp.asset_id === data['ordered_MCPs'][i])[0]
-            res.push(temp)
-        }
-        setMarkers(<Routing routeInfo={res} route={Routes.filter((route => { return route.id == id }))[0]} key={id} />)
+        handleCurrentRoute(data)
     }
-    async function handleOptimize() {
 
+    async function handleOptimize() {
+        // query the optimized current route
+        const oproute = await axiosPrivate.get(`${ROUTE_LIST}${route.route_id}/optimize/`)
+            .then(function (response) {
+                return response.data
+            })
+            .catch(function (err) {
+                console.log(err)
+            })
+        let res = await handleCurrentRoute(oproute, 1)
+        return {
+            route: {
+                id: oproute.id,
+                distance: oproute.distance,
+                load: oproute.total_load
+            },
+            MCPs: res
+        }
     }
+
+    const handleSimulator = async () => {
+
+        // query the vehicle
+        const vehicle = await axiosPrivate.get(`${VEHICLE}${profile.vehicle_id}/`)
+            .then(function (response) {
+                return response.data[0]
+            })
+            .catch(function (err) {
+                console.log(err)
+            })
+        // query the optimized route
+        const oproute = await handleOptimize()
+        // start the simulator
+        setMarkers(<SimulatorRouting oproute={oproute.MCPs} vehicle={vehicle} route={oproute.route} key={vehicle.asset_id} />)
+    }
+
     return (
         <>
             <CContainer fluid>
@@ -150,12 +183,15 @@ const WorkLocation = () => {
                     <CCol>
                         <CButtonGroup>
                             <CCol lg={1.2}>
-                                <CButton color="primary" onClick={handleCurrentRoute} size="sm">
+                                <CButton color="primary" onClick={() => handleCurrentRoute()} size="sm">
                                     Current route
                                 </CButton>
                             </CCol>
                             <CButton color="primary" onClick={handleOptimize} size="sm">
                                 Optimize
+                            </CButton>
+                            <CButton color="primary" onClick={handleSimulator} size="sm">
+                                Simulator
                             </CButton>
                         </CButtonGroup>
                         <CRow>
