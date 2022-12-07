@@ -38,7 +38,7 @@ import moment from 'moment/moment'
 import { Alert } from '@coreui/coreui'
 import useAxiosPrivate from 'src/hooks/useAxiosPrivate'
 import { useForm, Controller } from 'react-hook-form'
-// import { toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 const ADD_EMPLOYEE = '/account/employee/'
 
@@ -80,8 +80,8 @@ const AddEmployee = () => {
         const createUser = async () => {
             try {
                 const response = await axiosPrivate.post(ADD_EMPLOYEE, data)
-                // if (response) toast.useState("Employee added successfully.")
-                // else toast.error("Add Employee error")
+                if (response) toast.useState("Employee added successfully.")
+                else toast.error("Add Employee error")
             } catch (error) {
                 console.log(error)
             }
