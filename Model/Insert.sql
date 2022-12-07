@@ -97,3 +97,9 @@ CALL InsertEmployee(@dummy,'123CsuiRR321','khoaito3279','Nguyen Van C',@latest_b
 CALL AssignRouteToCollector(@route1,last_insert_id());
 UPDATE employee SET vehicle_id = @truck3 WHERE user_id = last_insert_id();
 CALL InsertShift(@dummy,'00:00:00','02:00:00','Wed',last_insert_id());
+
+CALL InsertEmployee(@dummy,'huyhoang123','huyhoangsus123','Nguyen Huy Hoang',@latest_bo_id,ROUND(RAND()),SYSDATE(),NULL,NULL,'male','0143562480','huyhoang@gmail.com',NULL,0,7000000);
+CALL InsertEmployee(@dummy,'quocbao123','quocbaosus123','Tran Quoc Bao',@latest_bo_id,ROUND(RAND()),SYSDATE(),NULL,NULL,'male','0423597110','quocbao1@gmail.com',NULL,0,7000000);
+CALL InsertEmployee(@dummy,'phivu123','phivusus212','Nguyen Phi Vu',@latest_bo_id,ROUND(RAND()),SYSDATE(),NULL,NULL,'male','0765562480','phivung@gmail.com',NULL,1,7000000);
+CALL InsertEmployee(@dummy,'huyan123','anhuysus123','Nguyen Huy An',@latest_bo_id,ROUND(RAND()),SYSDATE(),NULL,NULL,'male','0457367980','anhuy123@gmail.com',NULL,1,7000000);
+
