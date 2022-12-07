@@ -130,7 +130,9 @@ const WorkLocation = () => {
         }
         setMarkers(<Routing routeInfo={res} route={Routes.filter((route => { return route.id == id }))[0]} key={id} />)
     }
+    async function handleOptimize() {
 
+    }
     return (
         <>
             <CContainer fluid>
