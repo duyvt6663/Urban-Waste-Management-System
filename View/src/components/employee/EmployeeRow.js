@@ -67,6 +67,10 @@ const EmployeeRow = (props) => {
         e.preventDefault()
         navigate(`/employee/profile/${props.user.id}`);
     }
+    const handleUpdate = (e) => {
+        e.preventDefault()
+        navigate(`/employee/update/${props.user.id}`);
+    }
 
     return (
         <>
@@ -112,7 +116,9 @@ const EmployeeRow = (props) => {
                             <div className="detail-container">
                                 <h4>{props.user.name}</h4>
                                 <p>User since: {props.user.start_date}</p>
-                                <CButton size="sm" color="info" className="text-white mr-5 update-btn">
+                                <CButton size="sm" color="info" className="text-white mr-5 update-btn"
+                                    onClick={handleUpdate}
+                                >
                                     Update
                                 </CButton>
                                 <CButton size="sm" color="danger" className="text-white delete-btn">

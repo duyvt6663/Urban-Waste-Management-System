@@ -147,9 +147,16 @@ CORS_ALLOW_CREDENTIALS = True
 REST_FRAMEWORK = {
 }
 
+# DATABASE_CREDENTIALS = {
+#     'user':'root',
+#     'password':'12012002Duy',
+#     'host':'127.0.0.1',
+#     'database': 'uwc_2.0'
+# }
+
 DATABASE_CREDENTIALS = {
     'user':'root',
-    'password':'12012002Duy',
+    'password':'71102Tony#',
     'host':'127.0.0.1',
     'database': 'uwc_2.0'
 }
