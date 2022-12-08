@@ -127,10 +127,11 @@ const SimulatorRouting = ({ oproute, vehicle, route, ...props }) => {
         return res
     }
     const waypointss = getRoute(oproute) // set up the full route
-    const vmarker = L.marker([vehicle.latitude, vehicle.longtitude], iconTRUCK).addTo(smap)
+
 
     useEffect(() => {
         if (!smap) return;
+        const vmarker = L.marker([vehicle.latitude, vehicle.longtitude], iconTRUCK).addTo(smap)
         const routingControl = L.Routing.control({
             waypoints: waypointss,
             lineOptions: {
@@ -171,9 +172,21 @@ const SimulatorRouting = ({ oproute, vehicle, route, ...props }) => {
             showAlternatives: false,
         }).on('routesfound', function (e) {
             // simulate the movement
+            let i = 0
             e.routes[0].coordinates.forEach(function (coor, index) {
                 setTimeout(() => {
                     vmarker.setLatLng([coor.lat, coor.lng])
+                    if (vmarker.getLatLng().distanceTo(waypointss[i + 1]) < 50) {
+                        if (vehicle.capacity - vehicle.load >= oproute[i].load) {
+                            vehicle.load += oproute[i].load
+                            oproute[i].load = 0
+                        }
+                        else {
+                            vehicle.load += vehicle.capacity - vehicle.load
+                            oproute[i].load -= vehicle.capacity - vehicle.load
+                        }
+                        i += 1
+                    }
                 }, 100 * index)
             })
         }).addTo(smap);
