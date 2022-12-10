@@ -205,7 +205,7 @@ const SimulatorRouting = ({ op, veh, ro, ...props }) => {
                     if (index === indices[op.length + 1])
                         // final index
                         smap.removeLayer(vmarker)
-                }, 30 * index)
+                }, 100 * index)
 
             })
         }).addTo(smap)
