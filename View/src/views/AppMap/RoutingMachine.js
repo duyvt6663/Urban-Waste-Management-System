@@ -49,6 +49,14 @@ const getMarkerMCPPopup = (params) => {
   `
 }
 
+const getVehiclePopup = (params) => {
+    return `
+    <div><strong>ID:</strong> ${params.id}</div>
+    <div><strong>Load:</strong> ${params.load} kg</div>
+    <div><strong>Capacity:</strong> ${params.capacity} kg</div>
+    <div><strong>Filled:</strong> ${params.load / params.capacity * 100} %</div>
+  `
+}
 
 const Routing = ({ routeInfo, route, ...props }) => {
     const map = useMap();
@@ -118,12 +126,6 @@ export default Routing
 
 const SimulatorRouting = ({ op, veh, ro, ...props }) => {
     const smap = useMap()
-    const [vehicle, setVehicle] = useState(veh)
-    const vmarker = L.marker([vehicle.latitude, vehicle.longtitude], { icon: iconTRUCK }).addTo(smap)
-    const [oproute, setRoute] = useState(op)
-    const index = 0
-    const [indox, setIndox] = useState(0)
-    const [rControl, setRControl] = useState(null)
 
     function getRoute(x) {
         let res = []
@@ -133,11 +135,11 @@ const SimulatorRouting = ({ op, veh, ro, ...props }) => {
         res.push(L.latLng(TREAT.latitude, TREAT.longtitude))
         return res
     }
-    const waypointss = getRoute(oproute) // set up the full route
+    const waypointss = getRoute(op) // set up the full route
 
     useEffect(() => {
         if (!smap) return
-        setRControl(L.Routing.control({
+        const rControl = L.Routing.control({
             waypoints: waypointss,
             lineOptions: {
                 addWaypoints: false,
@@ -159,7 +161,7 @@ const SimulatorRouting = ({ op, veh, ro, ...props }) => {
                 return L.marker(waypoint.latLng, {
                     draggable: true,
                     icon: iconMCP,
-                }).bindPopup(getMarkerMCPPopup(oproute[i - 1]))
+                }).bindPopup(getMarkerMCPPopup(op[i - 1]))
             },
             routeLine: function (road) {
                 let line = L.Routing.line(road, {
@@ -175,74 +177,41 @@ const SimulatorRouting = ({ op, veh, ro, ...props }) => {
             routeWhileDragging: false,
             fitSelectedRoutes: false,
             showAlternatives: false,
-        }).addTo(smap))
-    }, [smap])
+        }).on('routesfound', function (e) {
+            const indices = e.routes[0].waypointIndices
+            const coors = e.routes[0].coordinates
+            let currInd = 0
+            const vmarker = L.marker([veh.latitude, veh.longtitude], { icon: iconTRUCK })
+                .bindPopup(getVehiclePopup(veh))
+                .addTo(smap)
 
-    useEffect(() => {
-        if (indox >= oproute.length) return
-        smap.removeControl(rControl)
-        setRControl(prev => {
-            return prev.on('routesfound', function (e) {
-                // find the stoppoint
-                let tem = Infinity
-                let smp = -1 // waypoint index
-                e.routes[0].coordinates.forEach(function (coor, ind) {
-                    let dist = coor.distanceTo(waypointss[indox + 1])
-                    if (dist < tem) {
-                        smp = ind
-                        tem = dist
+            // simulate the movement
+            coors.forEach(function (coor, index) {
+                setTimeout(() => {
+                    vmarker.setLatLng([coor.lat, coor.lng])
+                    if (index === indices[currInd + 1] &&
+                        currInd < op.length) {
+                        // change the current load
+                        if (veh.capacity - veh.load > op[currInd].load) {
+                            veh.load += op[currInd].load
+                            op[currInd++].load = 0
+                        }
+                        else {
+                            op[currInd++].load -= veh.capacity - veh.load
+                            veh.load = veh.capacity
+                        }
+                        rControl._plan._updateMarkers()
+                        vmarker.setPopupContent(getVehiclePopup(veh))
                     }
-                })
-                // simulate the movement
-                for (let i = index; i < smp; ++i) {
-                    let coor = e.routes[0].coordinates[i]
-                    setTimeout(() => {
-                        vmarker.setLatLng([coor.lat, coor.lng])
-                    }, 100 * i)
-                }
-                if (vehicle.capacity - vehicle.load >= oproute[indox].load) {
-                    setVehicle(prev => {
-                        return {
-                            ...prev,
-                            load: prev.load + oproute[indox].load
-                        }
-                    })
-                    setRoute(items => {
-                        return [
-                            ...items.slice(0, indox),
-                            {
-                                ...items[indox],
-                                load: 0
-                            },
-                            ...items.slice(indox + 1)
-                        ]
-                    })
-                }
-                else {
-                    setRoute(items => {
-                        return [
-                            ...items.slice(0, indox),
-                            {
-                                ...items[indox],
-                                load: items[indox].load - vehicle.capacity + vehicle.load
-                            },
-                            ...items.slice(indox + 1)
-                        ]
-                    })
-                    setVehicle(prev => {
-                        return {
-                            ...prev,
-                            load: prev.capacity
-                        }
-                    })
+                }, 100 * index)
 
-                }
-                index = smp + 1
-                indox += 1
-
-            }).addTo(smap)
-        })
-    }, [indox])
+            })
+        }).addTo(smap)
+        return () => {
+            smap.removeControl(rControl)
+            smap.removeLayer(vmarker)
+        }
+    }, [smap])
 }
 SimulatorRouting.propTypes = {
     op: PropTypes.arrayOf(PropTypes.element),

@@ -190,63 +190,6 @@ const Schedule = () => {
 
     return (
         <>
-            <CContainer fluid>
-                <CRow>
-                    <CCol lg={9}>
-                        <MapContainer center={position} zoom={16} whenReady={(map) => setMap(map)}>
-                            <TileLayer
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                url={maps.base}
-                            />
-                            {Markers}
-                        </MapContainer>
-                    </CCol>
-
-                    <CCol>
-                        <CButtonGroup>
-                            <CCol lg={1.2}>
-                                <CButton color="primary" onClick={handleCurrentRoute} size="sm">
-                                    Current route
-                                </CButton>
-                            </CCol>
-                            <CButton color="primary" onClick={handleOptimize} size="sm">
-                                Optimize
-                            </CButton>
-                        </CButtonGroup>
-                        <CRow>
-                            <CListGroup>
-                                {Routes.map((x) => (
-                                    <CButton
-                                        key={x.id}
-                                        size="sm"
-                                        variant="outline"
-                                        color="danger"
-                                        onClick={() => {
-                                            handleClickRoute(x.id)
-                                        }}
-                                    >
-                                        <CRow>
-                                            <CCol>route {x.id}</CCol>
-                                            <CCol>
-                                                <CButton
-                                                    color="primary"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        handleAssign(x.id)
-                                                    }}
-                                                    size="sm"
-                                                >
-                                                    Assign
-                                                </CButton>
-                                            </CCol>
-                                        </CRow>
-                                    </CButton>
-                                ))}
-                            </CListGroup>
-                        </CRow>
-                    </CCol>
-                </CRow>
-            </CContainer>
             <CContainer fluid className="" style={{ marginTop: '2rem' }}>
                 <h2>Schedule</h2>
                 <CContainer>

@@ -163,7 +163,7 @@ const WorkLocation = () => {
         // query the optimized route
         const oproute = await handleOptimize()
         // start the simulator
-        setMarkers(<SimulatorRouting op={oproute.MCPs} veh={vehicle} ro={oproute.route} key={vehicle.asset_id} />)
+        setMarkers(<SimulatorRouting op={oproute.MCPs} veh={vehicle} ro={oproute.route} key={vehicle.asset_id + Math.random()} />)
     }
 
     return (

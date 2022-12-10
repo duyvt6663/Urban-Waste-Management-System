@@ -34,7 +34,7 @@
     "axios": "^1.2.0",
     "chart.js": "^3.9.1",
     "classnames": "^2.3.1",
-    "core-js": "^3.24.1",
+    "core-js": "^3.26.1",
     "dotenv": "^16.0.3",
     "leaflet": "^1.9.2",
     "leaflet-routing-machine": "^3.2.12",
