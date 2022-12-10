@@ -184,7 +184,6 @@ const SimulatorRouting = ({ op, veh, ro, ...props }) => {
             const vmarker = L.marker([veh.latitude, veh.longtitude], { icon: iconTRUCK })
                 .bindPopup(getVehiclePopup(veh))
                 .addTo(smap)
-
             // simulate the movement
             coors.forEach(function (coor, index) {
                 setTimeout(() => {
@@ -203,7 +202,10 @@ const SimulatorRouting = ({ op, veh, ro, ...props }) => {
                         rControl._plan._updateMarkers()
                         vmarker.setPopupContent(getVehiclePopup(veh))
                     }
-                }, 100 * index)
+                    if (index === indices[op.length + 1])
+                        // final index
+                        smap.removeLayer(vmarker)
+                }, 30 * index)
 
             })
         }).addTo(smap)
