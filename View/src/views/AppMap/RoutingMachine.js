@@ -122,8 +122,8 @@ const SimulatorRouting = ({ op, veh, ro, ...props }) => {
     const vmarker = L.marker([vehicle.latitude, vehicle.longtitude], { icon: iconTRUCK }).addTo(smap)
     const [oproute, setRoute] = useState(op)
     const index = 0
-    const indox = 0
-    const rControl = null
+    const [indox, setIndox] = useState(0)
+    const [rControl, setRControl] = useState(null)
 
     function getRoute(x) {
         let res = []
@@ -135,105 +135,114 @@ const SimulatorRouting = ({ op, veh, ro, ...props }) => {
     }
     const waypointss = getRoute(oproute) // set up the full route
 
-    rControl = L.Routing.control({
-        waypoints: waypointss,
-        lineOptions: {
-            addWaypoints: false,
-            styles: [{ color: "#FD4F4F", weight: 4 }]
-        },
-        createMarker: (i, waypoint, n) => {
-            if (i == 0) {
-                return L.marker(waypoint.latLng, {
-                    draggable: true,
-                    icon: iconDEPOT,
-                })
-            }
-            else if (i == n - 1) {
-                return L.marker(waypoint.latLng, {
-                    draggable: true,
-                    icon: iconTREAT,
-                })
-            }
-            return L.marker(waypoint.latLng, {
-                draggable: true,
-                icon: iconMCP,
-            }).bindPopup(getMarkerMCPPopup(oproute[i - 1]))
-        },
-        routeLine: function (road) {
-            let line = L.Routing.line(road, {
-                addWaypoints: false
-            })
-            line.eachLayer((l) => {
-                l.bindPopup(getLinePopUp(ro))
-            })
-            return line
-        },
-        show: false,
-        addWaypoints: false,
-        routeWhileDragging: false,
-        fitSelectedRoutes: false,
-        showAlternatives: false,
-    }).on('routesfound', function (e) {
-        // find the stoppoint
-        while (indox < oproute.length) {
-            let tem = Infinity
-            let smp = -1 // waypoint index
-            e.routes[0].coordinates.forEach(function (coor, ind) {
-                let dist = coor.distanceTo(waypointss[indox + 1])
-                if (dist < tem) {
-                    smp = ind
-                    tem = dist
+    useEffect(() => {
+        if (!smap) return
+        setRControl(L.Routing.control({
+            waypoints: waypointss,
+            lineOptions: {
+                addWaypoints: false,
+                styles: [{ color: "#FD4F4F", weight: 4 }]
+            },
+            createMarker: (i, waypoint, n) => {
+                if (i == 0) {
+                    return L.marker(waypoint.latLng, {
+                        draggable: true,
+                        icon: iconDEPOT,
+                    })
                 }
-            })
-            // simulate the movement
-            for (let i = index; i < smp; ++i) {
-                let coor = e.routes[0].coordinates[i]
-                setTimeout(() => {
-                    vmarker.setLatLng([coor.lat, coor.lng])
-                }, 100 * i)
-            }
-            if (vehicle.capacity - vehicle.load >= oproute[indox].load) {
-                setVehicle(prev => {
-                    return {
-                        ...prev,
-                        load: prev.load + oproute[indox].load
+                else if (i == n - 1) {
+                    return L.marker(waypoint.latLng, {
+                        draggable: true,
+                        icon: iconTREAT,
+                    })
+                }
+                return L.marker(waypoint.latLng, {
+                    draggable: true,
+                    icon: iconMCP,
+                }).bindPopup(getMarkerMCPPopup(oproute[i - 1]))
+            },
+            routeLine: function (road) {
+                let line = L.Routing.line(road, {
+                    addWaypoints: false
+                })
+                line.eachLayer((l) => {
+                    l.bindPopup(getLinePopUp(ro))
+                })
+                return line
+            },
+            show: false,
+            addWaypoints: false,
+            routeWhileDragging: false,
+            fitSelectedRoutes: false,
+            showAlternatives: false,
+        }).addTo(smap))
+    }, [smap])
+
+    useEffect(() => {
+        if (indox >= oproute.length) return
+        smap.removeControl(rControl)
+        setRControl(prev => {
+            return prev.on('routesfound', function (e) {
+                // find the stoppoint
+                let tem = Infinity
+                let smp = -1 // waypoint index
+                e.routes[0].coordinates.forEach(function (coor, ind) {
+                    let dist = coor.distanceTo(waypointss[indox + 1])
+                    if (dist < tem) {
+                        smp = ind
+                        tem = dist
                     }
                 })
-                setRoute(items => {
-                    return [
-                        ...items.slice(0, indox),
-                        {
-                            ...items[indox],
-                            load: 0
-                        },
-                        ...items.slice(indox + 1)
-                    ]
-                })
-            }
-            else {
-                setRoute(items => {
-                    return [
-                        ...items.slice(0, indox),
-                        {
-                            ...items[indox],
-                            load: items[indox].load - vehicle.capacity + vehicle.load
-                        },
-                        ...items.slice(indox + 1)
-                    ]
-                })
-                setVehicle(prev => {
-                    return {
-                        ...prev,
-                        load: prev.capacity
-                    }
-                })
+                // simulate the movement
+                for (let i = index; i < smp; ++i) {
+                    let coor = e.routes[0].coordinates[i]
+                    setTimeout(() => {
+                        vmarker.setLatLng([coor.lat, coor.lng])
+                    }, 100 * i)
+                }
+                if (vehicle.capacity - vehicle.load >= oproute[indox].load) {
+                    setVehicle(prev => {
+                        return {
+                            ...prev,
+                            load: prev.load + oproute[indox].load
+                        }
+                    })
+                    setRoute(items => {
+                        return [
+                            ...items.slice(0, indox),
+                            {
+                                ...items[indox],
+                                load: 0
+                            },
+                            ...items.slice(indox + 1)
+                        ]
+                    })
+                }
+                else {
+                    setRoute(items => {
+                        return [
+                            ...items.slice(0, indox),
+                            {
+                                ...items[indox],
+                                load: items[indox].load - vehicle.capacity + vehicle.load
+                            },
+                            ...items.slice(indox + 1)
+                        ]
+                    })
+                    setVehicle(prev => {
+                        return {
+                            ...prev,
+                            load: prev.capacity
+                        }
+                    })
 
-            }
-            index = smp + 1
-            indox += 1
-        }
+                }
+                index = smp + 1
+                indox += 1
 
-    }).addTo(smap)
+            }).addTo(smap)
+        })
+    }, [indox])
 }
 SimulatorRouting.propTypes = {
     op: PropTypes.arrayOf(PropTypes.element),

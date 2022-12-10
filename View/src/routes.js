@@ -5,6 +5,7 @@ import AddVehicle from './views/Vehicle/AddVehicle'
 import AppVehicle from './views/Vehicle/AppVehicle'
 import WorkLocation from './views/employee/WorkLocation'
 import UpdateEmployee from './views/employee/UpdateEmployee'
+import Schedule from './views/employee/Schedule'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Employee = React.lazy(() => import('./views/employee/Employee'))
@@ -66,7 +67,8 @@ const routes = [
     { path: '/employee/addemployee', name: 'Add employee', element: AddEmployee },
     { path: '/vehicle/addvehicle', name: 'Add vehicle', element: AddVehicle },
     { path: '/employee/profile/:id', name: 'Schedule', element: WorkLocation },
-    { path: '/employee/update/:id', name: 'Profile', element: UpdateEmployee},
+    { path: '/employee/update/:id', name: 'Profile', element: UpdateEmployee },
+    { path: '/employee/schedule/:id', name: 'Schedule', element: Schedule },
     // { path: '/theme', name: 'Theme', element: Colors, exact: true },
     // { path: '/theme/colors', name: 'Colors', element: Colors },
     // { path: '/theme/typography', name: 'Typography', element: Typography },

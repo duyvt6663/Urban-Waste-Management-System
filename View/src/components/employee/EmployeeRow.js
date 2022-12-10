@@ -71,6 +71,10 @@ const EmployeeRow = (props) => {
         e.preventDefault()
         navigate(`/employee/update/${props.user.id}`);
     }
+    const handleSchedule = (e) => {
+        e.preventDefault()
+        navigate(`/employee/schedule/${props.user.id}`);
+    }
 
     return (
         <>
@@ -126,7 +130,10 @@ const EmployeeRow = (props) => {
                                 </CButton>
                                 <br />
                                 <CButton size="sm" color="warning" className="text-white assign-btn" id={props.user.id} disabled={!props.user.is_collector} onClick={(e) => handleViewTask(e)}>
-                                    View Tasks
+                                    View Work Location
+                                </CButton>
+                                <CButton size="sm" color="warning" className="text-white assign-btn" id={props.user.id} onClick={(e) => handleSchedule(e)}>
+                                    View Schedule
                                 </CButton>
                             </div>
                         </div>
