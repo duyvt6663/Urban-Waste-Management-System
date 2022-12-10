@@ -207,10 +207,7 @@ const SimulatorRouting = ({ op, veh, ro, ...props }) => {
 
             })
         }).addTo(smap)
-        return () => {
-            smap.removeControl(rControl)
-            smap.removeLayer(vmarker)
-        }
+        return () => { smap.removeControl(rControl) }
     }, [smap])
 }
 SimulatorRouting.propTypes = {
