@@ -1,4 +1,4 @@
-# How to set up the Controller
+# How to set up the Controller and Model
 # Setup MySQL
 Take scripts in the "Model" folder of the repo and run in MySQL workbench/MySQL Shell to create a db, according to the following order:
 ```
