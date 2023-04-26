@@ -7,4 +7,6 @@ It employs the MVC model:
 task is handled. We employ Travelling Salesman Heuristics for the job. 
 * The View is where the dashboard is implemented. It includes map management, schedule management and employee management modules.  
 ---
-Documents annotate the design process, from use-cases, requirements specification to architecture sketching. Everything is included in the final report
+Documents annotate two things:
+* First is the system structure, including the design process, use-cases, requirements specification to architecture sketching.
+* Second is the database, including design to implementation.
