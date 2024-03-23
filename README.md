@@ -1,5 +1,4 @@
-# Urban-Waste-Management-System
-Urban waste collection aid
+# Urban-Waste-Management-System 
 This projects creates a web-based dashboard view for managers of an automated waste-collection system.  
 It employs the MVC model:
 * The Model is logics implemented in a MySQL database with functional features including authentication and data calibration.
